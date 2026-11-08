@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "schools": [
-    { "id": "nailong", "file": "schools/nailong.json" }
+    { "id": "nailong", "file": "schools/nailong-fixed.json" }
   ]
 }
