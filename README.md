@@ -312,7 +312,8 @@ https://gitee.com/ChengFY0710/classpp_schoolsync/raw/main/update.json
 | `apk.sizeBytes` | 是 | APK 字节数，下载后校验 |
 | `apk.sha256` | 是 | APK 的 SHA-256（64 位小写十六进制），下载后校验 |
 | `releasePageUrl` | 否 | 发布页/下载页；无法应用内下载时兜底打开 |
-| `changelog` | 否 | 分语言更新说明，键为语言标签（当前 `zh` / `en`）；缺省或空数组 = 不显示 |
+| `changelog` | 否 | 最新版本的分语言更新说明，键为语言标签（当前 `zh` / `en`）；缺省或空数组 = 不显示 |
+| `releases` | 否 | 已发布版本的历史更新说明数组；每项含 `versionCode` / `versionName` / `publishedAt` / `changelog`。App 按版本号降序展示，旧客户端会忽略本字段 |
 
 示例（发布 `0.1.6-alpha` 时）：
 
@@ -335,9 +336,45 @@ https://gitee.com/ChengFY0710/classpp_schoolsync/raw/main/update.json
   "changelog": {
     "zh": ["新增：关于页检查更新", "修复：……"],
     "en": ["New: update check on the About page", "Fixed: …"]
-  }
+  },
+  "releases": [
+    {
+      "versionCode": 5,
+      "versionName": "0.1.6-alpha",
+      "publishedAt": "2026-11-20",
+      "changelog": {
+        "zh": ["新增：关于页检查更新", "修复：……"],
+        "en": ["New: update check on the About page", "Fixed: …"]
+      }
+    },
+    {
+      "versionCode": 4,
+      "versionName": "0.1.5-alpha",
+      "publishedAt": "2026-10-30",
+      "changelog": {
+        "zh": ["首个公开测试版"],
+        "en": ["First public alpha"]
+      }
+    }
+  ]
 }
 ```
+
+### 7.1.1 多版本更新日志（`releases`）
+
+关于页「更新日志」入口按版本分组展示已发布版本的说明；数据来自可选的 `releases` 数组。
+
+- **顺序**：推荐最新版本在前；App 也会按 `versionCode` 降序排序并对同版本去重。
+- **范围**：只接受 `versionCode ∈ [1, 顶层 versionCode]` 的条目，防止把尚未发布的版本
+  写进历史；最多展示最近 **20** 个版本。
+- **字段**：每项 `versionCode` / `versionName` 必填，`publishedAt` 可空，`changelog`
+  为分语言数组（`zh` / `en`，缺失回退中文）。空数组 = 该版本没有可展示说明，UI 会跳过。
+- **限制**：单版本最多 30 条说明、每条最多 500 字符（与顶层 `changelog` 一致）。
+- **兜底**：`releases` 缺省或为空时，App 回退到顶层 `changelog`（只显示最新一版），
+  旧客户端行为完全不变；`releases` 中缺少顶层最新版本时，App 会自动补一条顶层记录；
+  最新版本条目没写说明时，用顶层 `changelog` 兜底。
+- **只改日志不发版**：可以只修改 `changelog` / `releases` 而不提升 `versionCode`；
+  已安装该版本的用户下次点「更新日志」即可看到新内容，但不会触发更新提示。
 
 ### 7.2 发布流程（每个版本必做）
 
@@ -361,7 +398,8 @@ https://gitee.com/ChengFY0710/classpp_schoolsync/raw/main/update.json
    ```
 
 5. 更新本文件的 `versionCode` / `versionName` / `publishedAt` / `apk.*` /
-   `releasePageUrl` / `changelog`；
+   `releasePageUrl` / `changelog`，并把本版本记录插入 `releases` **顶部**
+   （保留历史版本说明；顶层 `changelog` 作为最新版本兜底保留）；
 6. push 到本仓库 `main` 分支，再用手机网络访问一次上面的 raw 地址确认内容已生效
    （Gitee raw 可能有 CDN 缓存，必要时等待几分钟或加查询参数重试）。
 

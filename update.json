@@ -16,5 +16,16 @@
   "changelog": {
     "zh": [],
     "en": []
-  }
+  },
+  "releases": [
+    {
+      "versionCode": 4,
+      "versionName": "0.1.5-alpha",
+      "publishedAt": "2026-10-30",
+      "changelog": {
+        "zh": [],
+        "en": []
+      }
+    }
+  ]
 }
